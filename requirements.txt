@@ -1,0 +1,41 @@
+# GeoMPNN reproduction — top-level dependency stack
+#
+# Install order matters: torch (cu118 wheels) must land before LIPS so that
+# the [recommended] extra's `torch==2.0.1` pin is satisfied without re-fetch,
+# and PyG geometric extensions need to match torch 2.0.1+cu118 exactly.
+#
+# Use scripts/setup.sh — it does this in the right order.
+#
+# Manual:
+#   pip install --upgrade pip wheel setuptools
+#   pip install --index-url https://download.pytorch.org/whl/cu118 \
+#     torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2
+#   pip install -f https://data.pyg.org/whl/torch-2.0.1+cu118.html -r requirements.txt
+#
+# Tested on Python 3.10.12. Works on driver >= 520 (cu118 binaries are forward-
+# compatible with newer drivers, including CUDA 13.x).
+
+# Core deep-learning stack (matches the GeoMPNN paper)
+torch==2.0.1
+torchvision==0.15.2
+torchaudio==2.0.2
+
+# PyTorch Geometric (matches torch 2.0.1+cu118)
+torch-geometric==2.7.0
+pyg-lib==0.4.0+pt20cu118
+torch-scatter==2.1.2+pt20cu118
+torch-sparse==0.6.18+pt20cu118
+torch-cluster==1.6.3+pt20cu118
+torch-spline-conv==1.2.2+pt20cu118
+
+# Competition framework (LIPS) and the AirfRANS dataset wrapper.
+# [recommended] pulls grid2op / lightsim2grid / leap-net / pandapower / tensorflow 2.8
+# which LIPS itself imports unconditionally in its scoring path.
+lips-benchmark[recommended]==0.2.7
+airfrans==0.1.5.1
+
+# Misc utilities used by the official simulator code
+dill==0.4.1
+gpustat==1.1.1
+tensorboard<2.13
+tqdm
