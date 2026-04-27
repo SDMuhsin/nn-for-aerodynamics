@@ -24,6 +24,13 @@ done
 
 PY="${PYTHON:-python3}"
 
+# Compute Canada / DRAC has its own wheelhouse and locks pip to --no-index.
+# Hand off to the CC-specific path early so we don't waste time on cu118 fetches.
+if [[ -d /cvmfs/soft.computecanada.ca ]]; then
+  echo "[setup] Compute Canada CVMFS detected — delegating to scripts/setup_cc.sh"
+  exec bash "$SCRIPT_DIR/setup_cc.sh" "$@"
+fi
+
 echo "[setup] using Python at: $($PY -c 'import sys; print(sys.executable)')"
 PY_VERSION="$($PY -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
 if [[ "$PY_VERSION" != "3.10" ]]; then

@@ -29,6 +29,18 @@ bash scripts/setup.sh           # ~25 min: build venv, install deps, download Ai
 bash scripts/run_full_sweep.sh  # the full 80-run reproduction
 ```
 
+On **Compute Canada / DRAC** clusters (e.g. `*.computecanada.ca`,
+`platogpu*`), `setup.sh` auto-delegates to `scripts/setup_cc.sh`, which uses
+the CVMFS wheelhouse for torch + PyG (closest available is torch 2.1.1, a
+one-minor drift from paper's 2.0.1 — within reproduction tolerance) and
+reaches PyPI via `--index-url` only for `lips-benchmark` + `airfrans`. Make
+sure the right modules are loaded first:
+
+```bash
+module load python/3.10 cuda/11.8
+bash scripts/setup.sh           # delegates to setup_cc.sh on CVMFS hosts
+```
+
 `scripts/run_full_sweep.sh` auto-detects MIG instances via `scripts/detect_gpus.sh`
 and runs one parallel training per slot. Override slot detection by setting
 `GEOMPNN_GPUS="MIG-uuid1 MIG-uuid2 ..."` in the environment.
