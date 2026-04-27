@@ -1,0 +1,165 @@
+
+========== host & python ==========
+host:        platogpu007
+user:        ckp908
+date:        Mon Apr 27 05:17:51 PM CST 2026
+python3:     /home/ckp908/nn-for-aerodynamics/env/bin/python3  (Python 3.11.4)
+venv:        ./env  (active=/home/ckp908/nn-for-aerodynamics/env)
+
+========== loaded modules ==========
+
+Currently Loaded Modules:
+  1) CCconfig          3) gcccore/.12.3 (H)   5) hwloc/2.9.1   7) libfabric/1.18.0   9) ucc/1.2.0          11) flexiblas/3.3.1         13) StdEnv/2023 (S)
+  2) gentoo/2023 (S)   4) gcc/12.3      (t)   6) ucx/1.14.1    8) pmix/4.2.4        10) openmpi/4.1.5 (m)  12) imkl/2023.2.0   (math)
+
+  Where:
+   H:     Hidden Module
+   S:     Module is Sticky, requires --force to unload or purge
+   m:     MPI implementations / Implémentations MPI
+   math:  Mathematical libraries / Bibliothèques mathématiques
+   t:     Tools for development / Outils de développement
+
+ 
+
+
+========== wheelhouse search paths ==========
+EXISTS  /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3
+EXISTS  /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic
+EXISTS  /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
+
+========== wheelhouse: vtk-related wheels (any name containing 'vtk') ==========
+--- /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic ---
+ipyvtk_simple-0.1.4+computecanada-py3-none-any.whl
+vtk-8.1.2+computecanada-cp27-cp27mu-linux_x86_64.whl
+vtk-8.1.2+computecanada-cp35-cp35m-linux_x86_64.whl
+vtk-8.1.2+computecanada-cp36-cp36m-linux_x86_64.whl
+vtk-8.1.2+computecanada-cp37-cp37m-linux_x86_64.whl
+vtk-9.0.1+computecanada-cp36-cp36m-linux_x86_64.whl
+vtk-9.0.1+computecanada-cp37-cp37m-linux_x86_64.whl
+vtk-9.0.1+computecanada-cp38-cp38-linux_x86_64.whl
+vtk-9.2.5+computecanada-cp310-cp310-linux_x86_64.whl
+vtk-9.2.5+computecanada-cp38-cp38-linux_x86_64.whl
+vtk-9.2.5+computecanada-cp39-cp39-linux_x86_64.whl
+
+========== wheelhouse: pyvista wheels ==========
+--- /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic ---
+pyvista-0.25.3+computecanada-py3-none-any.whl
+pyvista-0.34.1+computecanada-py3-none-any.whl
+pyvista-0.41.1+computecanada-py3-none-any.whl
+pyvista-0.44.0+computecanada-py3-none-any.whl
+pyvista-0.44.1+computecanada-py3-none-any.whl
+pyvista-0.44.2+computecanada-py3-none-any.whl
+pyvistaqt-0.7.0+computecanada-py3-none-any.whl
+pyvistaqt-0.9.0+computecanada-py3-none-any.whl
+
+========== system module: vtk ==========
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  vtk:
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     Versions:
+        vtk/8.2.0
+        vtk/9.0.1
+        vtk/9.1.0
+        vtk/9.3.0
+        vtk/9.3.1 (E)
+        vtk/9.4.2
+        vtk/9.4.2 (E)
+        vtk/9.5.2
+        vtk/9.5.2 (E)
+        vtk/9.6.0
+        vtk/9.6.0 (E)
+     Other possible modules matches:
+        csvtk  vtk-mpi
+
+Names marked by a trailing (E) are extensions provided by another module.
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  To find other possible module matches execute:
+
+      $ module -r spider '.*vtk.*'
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  For detailed information about a specific "vtk" package (including how to load the modules) use the module's full name.
+  Note that names that have a trailing (E) are extensions provided by other modules.
+  For example:
+
+     $ module spider vtk/9.6.0
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ 
+
+---
+
+-------------------------------------------------------------------------------------------------------- MPI-dependent avx2 modules --------------------------------------------------------------------------------------------------------
+   vtk-mpi/9.3.1 (vis)    vtk-mpi/9.4.2 (vis,D)
+
+----------------------------------------------------------------------------------------------------- Compiler-dependent avx2 modules ------------------------------------------------------------------------------------------------------
+   vtk/9.3.0 (vis)    vtk/9.4.2 (vis,D)
+
+  Where:
+   D:    Default Module
+   vis:  Visualisation software / Logiciels de visualisation
+
+If the avail list is too long consider trying:
+
+"module --default avail" or "ml -d av" to just list the default modules.
+"module overview" or "ml ov" to display the number of modules for each name.
+
+Use "module spider" to find all possible modules and extensions.
+Use "module keyword key1 key2 ..." to search for all possible modules matching any of the "keys".
+
+
+
+========== system module: anything *vtk* ==========
+vtk-mpi/
+vtk-mpi/9.3.1
+vtk-mpi/9.4.2
+vtk/
+vtk/9.3.0
+vtk/9.4.2
+
+========== system libs: ldconfig hits for libvtk* ==========
+
+========== PyPI reachability (compute node may block this) ==========
+  https://pypi.org/simple/vtk/  ->  200
+  https://download.pytorch.org/whl/cu118/  ->  200
+  https://files.pythonhosted.org/  ->  200
+
+========== pip config (env vars + global config) ==========
+PIP_CONFIG_FILE=/cvmfs/soft.computecanada.ca/config/python/pip-x86-64-v3-gentoo2023.conf
+download.find-links='/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic'
+global.disable-pip-version-check='true'
+install.constraint='/cvmfs/soft.computecanada.ca/config/python/constraints.txt'
+install.disable-pip-version-check='true'
+install.find-links='/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic'
+install.only-binary='numpy,scipy,mpi4py,pandas,h5py,Cython,grpcio'
+install.prefer-binary='true'
+wheel.disable-pip-version-check='true'
+wheel.find-links='/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic'
+:env:.config-file='/cvmfs/soft.computecanada.ca/config/python/pip-x86-64-v3-gentoo2023.conf'
+
+========== currently installed: torch / torch_geometric / lips / airfrans / pyvista / vtk ==========
+  torch == 2.1.1+computecanada
+  torch_geometric == 2.7.0+computecanada
+  lips-benchmark == 0.2.7
+  airfrans == 0.1.5.1
+  pyvista :: NOT INSTALLED
+  vtk :: NOT INSTALLED
+  dill == 0.4.1+computecanada
+
+========== import probes (does each module load? exit code only) ==========
+  torch  ->  OK
+  torch_geometric  ->  OK
+  pyvista  ->  FAIL  (ModuleNotFoundError: No module named 'pyvista')
+  vtk  ->  FAIL  (ModuleNotFoundError: No module named 'vtk')
+  airfrans  ->  FAIL  (ModuleNotFoundError: No module named 'pyvista')
+  lips.benchmark.airfransBenchmark  ->  FAIL  (ModuleNotFoundError: No module named 'pyvista')
+
+========== summary ==========
+wheelhouse has standalone vtk wheel: no
+system 'module load vtk' available:  YES
+PyPI reachable from this host:       YES
+
+Send the full output of this script back.

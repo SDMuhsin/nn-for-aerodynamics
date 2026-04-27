@@ -83,13 +83,13 @@ if [[ "$REPAIR_ONLY" -eq 0 ]]; then
   pip install --no-index numpy scipy scikit-learn matplotlib numba pandas pyyaml six tqdm
 
   # 4b) airfrans loads each simulation's .vtu/.vtp via pyvista (which wraps VTK).
-  #     CC's wheelhouse has pyvista but NOT a standalone vtk package — pyvista
-  #     needs vtk>=9.0 as a runtime dep, so we fetch it from PyPI as a fallback.
+  #     CC ships vtk wheels only for Python <= 3.10 (no cp311 wheel exists in
+  #     their wheelhouse). pyvista 0.44.2 requires vtk<9.4.0. Strategy:
+  #       - vtk: from PyPI (cp311 wheels available there), pinned to 9.3.x
+  #       - pyvista: from CC wheelhouse (no compiled bits, just python)
+  echo "[setup_cc] installing vtk 9.3.x from PyPI (CC has no cp311 vtk wheel)"
+  pip install --index-url https://pypi.org/simple "vtk>=9.3,<9.4"
   pip install --no-index pyvista
-  if ! python -c 'import vtk' 2>/dev/null; then
-    echo "[setup_cc] vtk not in wheelhouse; fetching from PyPI"
-    pip install --index-url https://pypi.org/simple vtk
-  fi
 
   # 5) lips-benchmark + airfrans + dill from PyPI
   #    --index-url overrides CC's default --no-index policy. CC's compute nodes
