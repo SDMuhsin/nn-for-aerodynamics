@@ -82,6 +82,10 @@ if [[ "$REPAIR_ONLY" -eq 0 ]]; then
   # 4) Scientific stack (LIPS' actual deps for the airfrans path)
   pip install --no-index numpy scipy scikit-learn matplotlib numba pandas pyyaml six tqdm
 
+  # 4b) airfrans loads each simulation's .vtu/.vtp via pyvista (which wraps VTK).
+  #     We install with --no-deps below, so we have to surface these explicitly.
+  pip install --no-index pyvista vtk
+
   # 5) lips-benchmark + airfrans + dill from PyPI
   #    --index-url overrides CC's default --no-index policy. CC's compute nodes
   #    sometimes block outbound PyPI; if that happens, run this script on a
