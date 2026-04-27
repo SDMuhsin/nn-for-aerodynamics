@@ -6,22 +6,25 @@
 # build is 2.1.1, which we accept as a one-minor drift well within the paper's
 # ±2 score-point reproduction tolerance.
 #
+# We deliberately SKIP pyg_lib / torch_sparse / torch_cluster / torch_scatter /
+# torch_spline_conv from the wheelhouse: their compiled .so files have
+# repeatedly been observed to have ABI mismatches against the +computecanada
+# torch build (e.g. `libpyg.so: undefined symbol: _ZN3c1010Dispatcher...`).
+#
+# Our model doesn't need them:
+#   - All configs set `manual_radius=true`, which routes through our pure-PyTorch
+#     `RadGr` class instead of torch_cluster's compiled radius_graph.
+#   - `torch_geometric.utils.scatter` falls back to native torch.scatter when
+#     torch_scatter is absent. (Mild perf hit, identical numerics.)
+#   - `torch_sparse` and `pyg_lib` are only used by torch_geometric's optional
+#     fast paths (sparse messsage passing). torch_geometric prints a one-time
+#     warning and uses dense fallbacks. We don't trip those paths.
+#
 # Usage:
-#   module load python/3.10 cuda/11.8
+#   module purge && module load python/3.11 cuda/11.8   # or python/3.10 if available
 #   bash scripts/setup_cc.sh             # build env + download AirfRANS
 #   bash scripts/setup_cc.sh --no-data   # skip download
-#
-# What it does:
-# 1. Installs torch 2.1.1+computecanada and matching PyG ext from the wheelhouse
-#    (--no-index path, fast)
-# 2. Installs lips-benchmark + airfrans + dill from PyPI via --index-url
-#    (CC blocks the default index but allows explicit --index-url)
-# 3. Skips the [recommended] extra of lips-benchmark — its torch==2.0.1 hard pin
-#    would conflict with the wheelhouse torch, and the AirfRANS scoring path
-#    doesn't actually need any of the [recommended] deps (those are for the
-#    power-grid use case).
-# 4. Verifies imports + a CUDA roundtrip.
-# 5. Downloads AirfRANS (~10 GB compressed).
+#   bash scripts/setup_cc.sh --repair    # uninstall broken PyG ext, keep rest
 
 set -euo pipefail
 
@@ -30,10 +33,12 @@ ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT"
 
 DOWNLOAD_DATA=1
+REPAIR_ONLY=0
 for arg in "$@"; do
   case "$arg" in
     --no-data) DOWNLOAD_DATA=0 ;;
-    -h|--help) sed -n '2,22p' "$0"; exit 0 ;;
+    --repair)  REPAIR_ONLY=1 ;;
+    -h|--help) sed -n '2,30p' "$0"; exit 0 ;;
     *) echo "Unknown arg: $arg"; exit 2 ;;
   esac
 done
@@ -46,60 +51,129 @@ fi
 
 echo "[setup_cc] python: $(which python3) ($(python3 -V))"
 
-# 1) Build the venv if missing (don't recreate if user already did `python3 -m venv env`)
+# 1) Build the venv if missing
 if [[ ! -d env ]]; then
   echo "[setup_cc] creating venv at ./env"
   python3 -m venv env
 fi
 source env/bin/activate
-
-# CC docs recommend --no-download for venv creation; we use the standard one
-# but make sure pip itself is current via the wheelhouse.
 pip install --no-index --upgrade pip
 
-# 2) Torch + PyG extensions from the CC wheelhouse (--no-index path is fast)
-echo "[setup_cc] installing torch 2.1.1 from CC wheelhouse"
-pip install --no-index torch==2.1.1
+# Repair mode: remove any pre-installed broken PyG ext and re-run the sanity
+# check. Useful if a prior setup_cc.sh attempt left libpyg.so etc. behind.
+if [[ "$REPAIR_ONLY" -eq 1 ]]; then
+  echo "[setup_cc] --repair: removing optional PyG ext that ABI-mismatches torch"
+  pip uninstall -y pyg-lib torch-scatter torch-sparse torch-cluster torch-spline-conv 2>/dev/null || true
+  echo "[setup_cc] re-running sanity check"
+fi
 
-# CC may not pin all PyG ext at exactly the same version — let pip pick what
-# it has. PyG 2.x is API-compatible across these patch versions.
-echo "[setup_cc] installing torch_geometric + ext from CC wheelhouse"
-pip install --no-index torch_scatter torch_sparse torch_cluster torch_spline_conv torch_geometric pyg_lib
+if [[ "$REPAIR_ONLY" -eq 0 ]]; then
+  # 2) Torch from CC wheelhouse (closest to paper's 2.0.1)
+  if ! python -c 'import torch' 2>/dev/null; then
+    echo "[setup_cc] installing torch from CC wheelhouse (closest available to 2.0.1)"
+    pip install --no-index torch==2.1.1 || pip install --no-index torch
+  else
+    echo "[setup_cc] torch already installed: $(python -c 'import torch; print(torch.__version__)')"
+  fi
 
-# 3) Common scientific stack from wheelhouse (LIPS needs these)
-echo "[setup_cc] installing scientific stack from CC wheelhouse"
-pip install --no-index numpy scipy scikit-learn matplotlib numba pandas pyyaml six pathlib tqdm
+  # 3) torch_geometric core (pure-Python, no compiled C++) from CC wheelhouse
+  pip install --no-index torch_geometric
 
-# 4) The two libs that aren't in the CC wheelhouse — fetch from PyPI explicitly.
-#    --index-url overrides the wheelhouse's default --no-index policy.
-echo "[setup_cc] installing lips-benchmark + airfrans + dill from PyPI"
-pip install --index-url https://pypi.org/simple --no-deps \
-  lips-benchmark==0.2.7 \
-  airfrans==0.1.5.1 \
-  dill==0.4.1
+  # 4) Scientific stack (LIPS' actual deps for the airfrans path)
+  pip install --no-index numpy scipy scikit-learn matplotlib numba pandas pyyaml six tqdm
 
-# tensorboard for logging (CC ships it)
-pip install --no-index tensorboard || \
-  pip install --index-url https://pypi.org/simple tensorboard
+  # 5) lips-benchmark + airfrans + dill from PyPI
+  #    --index-url overrides CC's default --no-index policy. CC's compute nodes
+  #    sometimes block outbound PyPI; if that happens, run this script on a
+  #    LOGIN node first (which always has PyPI), then re-run on the compute node.
+  echo "[setup_cc] installing lips-benchmark + airfrans + dill from PyPI (--index-url override)"
+  pip install --index-url https://pypi.org/simple --no-deps \
+    lips-benchmark==0.2.7 \
+    airfrans==0.1.5.1 \
+    dill==0.4.1
 
-# 5) Sanity import check (catches missing deps before training launches)
+  # 6) tensorboard (try wheelhouse first, fall back to PyPI)
+  pip install --no-index tensorboard 2>/dev/null || \
+    pip install --index-url https://pypi.org/simple tensorboard
+fi
+
+# 7) Sanity check — strict on torch + torch_geometric + lips + airfrans, lenient
+#    on the optional PyG extension family.
 python - <<'PY'
-import torch, torch_geometric, torch_scatter, torch_cluster, torch_sparse, pyg_lib
-from torch_geometric.data import Data
-from torch_geometric.transforms import RadiusGraph
-print(f"[setup_cc] torch={torch.__version__}  pyg={torch_geometric.__version__}  cuda={torch.cuda.is_available()}  gpus={torch.cuda.device_count()}")
-from lips.benchmark.airfransBenchmark import AirfRANSBenchmark
-from lips.dataset.airfransDataSet import AirfRANSDataSet
-from lips.dataset.scaler.standard_scaler_iterative import StandardScalerIterative
-import airfrans, dill, tensorboard
-print("[setup_cc] LIPS + airfrans imports OK")
-if torch.cuda.is_available():
-    d = Data(pos=torch.randn(100, 2, device='cuda'))
-    out = RadiusGraph(r=0.3)(d)
-    print(f"[setup_cc] PyG RadiusGraph on CUDA: {out.edge_index.shape[1]} edges")
+import importlib, sys, traceback
+ok = True
+
+def must(pkg):
+    global ok
+    try:
+        m = importlib.import_module(pkg)
+        ver = getattr(m, "__version__", "<no __version__>")
+        print(f"[sanity] OK   {pkg:25s} version={ver}")
+    except Exception as e:
+        ok = False
+        print(f"[sanity] FAIL {pkg:25s} :: {type(e).__name__}: {e}")
+
+def optional(pkg):
+    try:
+        m = importlib.import_module(pkg)
+        ver = getattr(m, "__version__", "<no __version__>")
+        print(f"[sanity] opt+ {pkg:25s} version={ver}")
+    except Exception as e:
+        print(f"[sanity] opt- {pkg:25s} (skipped: {type(e).__name__}: {str(e)[:80]})")
+
+must("torch")
+must("torch_geometric")
+must("numpy")
+must("scipy")
+must("scipy.stats")
+must("sklearn")
+must("airfrans")
+must("dill")
+must("tensorboard")
+
+# These are the four LIPS modules our simulator actually touches
+must("lips.benchmark.airfransBenchmark")
+must("lips.dataset.airfransDataSet")
+must("lips.dataset.scaler.standard_scaler_iterative")
+must("lips.evaluation.airfrans_evaluation")
+
+# Optional extensions — if they crash, our manual_radius path handles it
+optional("torch_scatter")
+optional("torch_cluster")
+optional("torch_sparse")
+optional("torch_spline_conv")
+optional("pyg_lib")
+
+# Real smoke: build the model on whatever device is available. This catches
+# any remaining ABI / import / config issue before training launches.
+import torch
+print()
+print(f"[sanity] CUDA available: {torch.cuda.is_available()}, device count: {torch.cuda.device_count()}")
+sys.path.insert(0, "src")
+from geompnn.simulator import GNN
+hparams = dict(
+    hidden_dim=64, target_dim=1, num_layers=4,
+    vol_radius=0.0, vol_max_num_neighbors=8,
+    surf_radius=0.05, surf_max_num_neighbors=8,
+    surf_spacing=1, s2v_max_num_neighbors=8,
+    manual_radius=True,
+    ang_basis=8, dist_basis=8, coord_basis=8,
+    coord_spacing=0.001, coord_max=8,
+    angles="null", dist="identity", coords="identity",
+    canonical_coords=True, inlet_coords=False, tail_coords=False,
+    closest_coords=False, norm_type="mlp_post", edge_norm=False,
+)
+m = GNN(hparams=hparams, field="x-velocity")
+n_params = sum(p.numel() for p in m.parameters())
+print(f"[sanity] OK   built S2V GNN model, {n_params:,} params")
+print()
+if not ok:
+    print("[sanity] FAILURES above — install is incomplete.")
+    sys.exit(1)
+print("[sanity] all required imports + model construction OK")
 PY
 
-# 6) AirfRANS dataset
+# 8) AirfRANS dataset
 DATA_DIR="$ROOT/data/airfrans/Dataset"
 if [[ "$DOWNLOAD_DATA" -eq 1 ]]; then
   if [[ -f "$DATA_DIR/manifest.json" ]]; then
