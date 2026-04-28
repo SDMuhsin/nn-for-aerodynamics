@@ -21,7 +21,10 @@
 # placeholder (our measured A40 baseline). Once runs finish it switches to the
 # observed mean wall-clock per run.
 
-set -euo pipefail
+# NOTE: NO `set -u`. CC's Lmod `module` bash function references unset vars
+# internally; under nounset it silently aborts. See scripts/setup_cc.sh header
+# and the round-2/round-3 install diagnostics.
+set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -61,10 +64,14 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# Activate venv
+# Activate venv. On CC, also load the modules that provide vtk's Python
+# bindings (we can't pip-install vtk for cp311; see setup_cc.sh header).
 if [[ ! -d env ]]; then
   echo "[run] no ./env found. Run: bash scripts/setup.sh"
   exit 2
+fi
+if [[ -d /cvmfs/soft.computecanada.ca ]]; then
+  module load StdEnv/2023 gcc/12.3 python/3.11 vtk/9.3.0
 fi
 source env/bin/activate
 export PYTHONPATH="$ROOT/src:${PYTHONPATH:-}"

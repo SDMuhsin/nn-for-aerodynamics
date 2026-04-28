@@ -1,32 +1,36 @@
 #!/usr/bin/env bash
 # Compute Canada / Digital Research Alliance Canada specific setup.
 #
-# CC's pip is locked to its CVMFS wheelhouse (--no-index by default), and that
-# wheelhouse does NOT carry torch 2.0.1 (the paper's version). Lowest +computecanada
-# build is 2.1.1, which we accept as a one-minor drift well within the paper's
-# ±2 score-point reproduction tolerance.
+# WHEELHOUSE LIMITATION (root cause of vtk install failure, diagnosed
+# 2026-04-28 via scripts/diagnose_cc_vtk*.sh):
+#   - CC's pip 26.0.1+computecanada lists 39 compatible platform tags but
+#     EXCLUDES every manylinux variant. PyPI ships every cp311+linux vtk wheel
+#     ONLY as manylinux_2_17_x86_64 — so pip and PyPI cannot intersect for vtk
+#     on Python 3.11. The CC wheelhouse itself only has cp310 vtk wheels.
+#   - The fix: take vtk from the system module (`module load vtk/9.3.0`).
+#     The bindings live at $EBROOTVTK/lib/python3.11/site-packages and are
+#     auto-added to the venv's sys.path via CC's $EBPYTHONPREFIXES sitecustomize.
+#   - The module load chain `python/3.11 vtk/9.3.0` REQUIRES `set -u` to be
+#     OFF: Lmod's bash function silently aborts under strict-unset mode
+#     (round-2 evidence). Hence this script uses only `-eo pipefail`.
 #
-# We deliberately SKIP pyg_lib / torch_sparse / torch_cluster / torch_scatter /
-# torch_spline_conv from the wheelhouse: their compiled .so files have
-# repeatedly been observed to have ABI mismatches against the +computecanada
-# torch build (e.g. `libpyg.so: undefined symbol: _ZN3c1010Dispatcher...`).
+# We also deliberately SKIP pyg_lib / torch_sparse / torch_cluster /
+# torch_scatter / torch_spline_conv: their compiled .so files have ABI
+# mismatches against the +computecanada torch build. Our model doesn't need
+# them (manual_radius=true configs route around torch_cluster.radius_graph;
+# torch_geometric.utils.scatter falls back to native torch.scatter).
 #
-# Our model doesn't need them:
-#   - All configs set `manual_radius=true`, which routes through our pure-PyTorch
-#     `RadGr` class instead of torch_cluster's compiled radius_graph.
-#   - `torch_geometric.utils.scatter` falls back to native torch.scatter when
-#     torch_scatter is absent. (Mild perf hit, identical numerics.)
-#   - `torch_sparse` and `pyg_lib` are only used by torch_geometric's optional
-#     fast paths (sparse messsage passing). torch_geometric prints a one-time
-#     warning and uses dense fallbacks. We don't trip those paths.
+# Torch is taken from the wheelhouse at 2.1.1+computecanada (paper used 2.0.1;
+# one minor drift, within the paper's ±2 score-point tolerance).
 #
 # Usage:
-#   module purge && module load python/3.11 cuda/11.8   # or python/3.10 if available
 #   bash scripts/setup_cc.sh             # build env + download AirfRANS
 #   bash scripts/setup_cc.sh --no-data   # skip download
 #   bash scripts/setup_cc.sh --repair    # uninstall broken PyG ext, keep rest
 
-set -euo pipefail
+# NOTE: NO `set -u`. CC's Lmod `module` bash function references vars that
+# are unset on first invocation; `set -u` aborts it silently. See diagnostic.
+set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -47,6 +51,20 @@ if [[ ! -d /cvmfs/soft.computecanada.ca ]]; then
   echo "[setup_cc] WARNING: this script is tuned for Compute Canada's CVMFS layout."
   echo "[setup_cc]          You're not on CC. Run scripts/setup.sh instead."
   echo "[setup_cc]          Continuing anyway in case you know what you're doing."
+fi
+
+# Load the system modules. vtk is the critical one: we cannot pip-install it
+# (see header comment), so we use CC's system build via Lmod, which exposes the
+# Python bindings via $EBPYTHONPREFIXES. python/3.11 is required by vtk/9.3.0
+# (per `module spider vtk/9.3.0`). StdEnv/2023 + gcc/12.3 are usually already
+# loaded from login but we re-load to be defensive.
+echo "[setup_cc] loading system modules: StdEnv/2023 gcc/12.3 python/3.11 vtk/9.3.0"
+module load StdEnv/2023 gcc/12.3 python/3.11 vtk/9.3.0
+echo "[setup_cc] EBROOTVTK=${EBROOTVTK:-NOT-SET}  EBVERSIONVTK=${EBVERSIONVTK:-NOT-SET}"
+if [[ -z "${EBROOTVTK:-}" ]]; then
+  echo "[setup_cc] FATAL: vtk module did not load. EBROOTVTK is unset."
+  echo "[setup_cc]        Try 'module spider vtk/9.3.0' to see prerequisites."
+  exit 5
 fi
 
 echo "[setup_cc] python: $(which python3) ($(python3 -V))"
@@ -83,15 +101,17 @@ if [[ "$REPAIR_ONLY" -eq 0 ]]; then
   pip install --no-index numpy scipy scikit-learn matplotlib numba pandas pyyaml six tqdm
 
   # 4b) airfrans loads each simulation's .vtu/.vtp via pyvista (which wraps VTK).
-  #     CC ships vtk wheels only for Python <= 3.10 (no cp311 wheel exists in
-  #     their wheelhouse). pyvista 0.44.2 requires vtk<9.4.0. Strategy:
-  #       - vtk: from PyPI (cp311 wheels available there), pinned to 9.3.x.
-  #         CC's PIP_CONFIG_FILE silently overrides --index-url unless we pass
-  #         --isolated AND --no-deps.
-  #       - pyvista: from CC wheelhouse (no compiled bits, just python).
-  echo "[setup_cc] installing vtk 9.3.x from PyPI (CC has no cp311 vtk wheel)"
-  pip install --isolated --no-deps --index-url https://pypi.org/simple "vtk>=9.3,<9.4"
-  pip install --no-index pyvista
+  #     We cannot pip-install vtk: PyPI ships only manylinux-tagged cp311 vtk
+  #     wheels and CC's pip excludes manylinux from its compatible-tag list.
+  #     Instead we use the system module (loaded at script start), which sets
+  #     EBPYTHONPREFIXES so the venv's python finds vtk transparently.
+  #     pyvista is pure-python from the wheelhouse; we install it with --no-deps
+  #     because pip can't satisfy its `vtk<9.4.0` requirement (vtk isn't
+  #     pip-installed) — but at runtime `import vtk` succeeds via the module.
+  echo "[setup_cc] verifying vtk is importable from the system module"
+  python -c "import vtk; v = vtk.vtkVersion.GetVTKVersion(); print(f'[setup_cc]   vtk {v}'); assert v.startswith('9.3'), f'expected 9.3.x, got {v}'"
+  echo "[setup_cc] installing pyvista from wheelhouse (--no-deps; vtk is module-provided)"
+  pip install --no-index --no-deps pyvista
 
   # 5) lips-benchmark + airfrans + dill from PyPI
   #    --index-url overrides CC's default --no-index policy. CC's compute nodes
