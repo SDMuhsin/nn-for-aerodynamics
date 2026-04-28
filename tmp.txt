@@ -1,29 +1,17 @@
 
-========== host & python (sanity) ==========
-host:        platogpu007
-user:        ckp908
-date:        Tue Apr 28 11:52:29 AM CST 2026
-pwd:         /home/ckp908/nn-for-aerodynamics
-venv:        /home/ckp908/nn-for-aerodynamics/env
-python:      /home/ckp908/nn-for-aerodynamics/env/bin/python  (Python 3.11.4)
-pip:         /home/ckp908/nn-for-aerodynamics/env/bin/pip  (pip 26.0.1 from /home/ckp908/nn-for-aerodynamics/env/lib/python3.11/site-packages/pip (python 3.11))
+========== 0. environment recap ==========
+host:   platogpu007
+venv:   /home/ckp908/nn-for-aerodynamics/env
+python: /home/ckp908/nn-for-aerodynamics/env/bin/python (Python 3.11.4)
+pip:    /home/ckp908/nn-for-aerodynamics/env/bin/pip (pip 26.0.1 from /home/ckp908/nn-for-aerodynamics/env/lib/python3.11/site-packages/pip (python 3.11))
 
-========== 1. CONSTRAINTS FILE referenced by pip config (the most likely culprit) ==========
-path:  /cvmfs/soft.computecanada.ca/config/python/constraints.txt
-size:  1 lines, 34 bytes
-
---- lines mentioning vtk ---
-(none)
-
---- lines mentioning pyvista ---
-(none)
-
---- first 40 lines (context) ---
-pip <= 18.1; python_version < '3'
-
-========== 2. pip config file contents (raw) ==========
-path: /cvmfs/soft.computecanada.ca/config/python/pip-x86-64-v3-gentoo2023.conf
---- full file ---
+========== H1.1 — every potential pip config path: existence + contents ==========
+MISSING /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/etc/xdg/pip/pip.conf
+MISSING /etc/xdg/pip/pip.conf
+MISSING /etc/pip.conf
+MISSING /home/ckp908/nn-for-aerodynamics/env/pip.conf
+EXISTS  /cvmfs/soft.computecanada.ca/config/python/pip-x86-64-v3-gentoo2023.conf
+--- contents ---
 [global]
 disable-pip-version-check = true
 
@@ -41,88 +29,275 @@ only-binary = numpy,scipy,mpi4py,pandas,h5py,Cython,grpcio
 prefer-binary = true
 disable-pip-version-check = true
 
+---
 
-========== 3. pip config list -v (verbose: shows precedence + which file each came from) ==========
-For variant 'global', will try loading '/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/etc/xdg/pip/pip.conf'
-For variant 'global', will try loading '/etc/xdg/pip/pip.conf'
-For variant 'global', will try loading '/etc/pip.conf'
-For variant 'site', will try loading '/home/ckp908/nn-for-aerodynamics/env/pip.conf'
-For variant 'env', will try loading '/cvmfs/soft.computecanada.ca/config/python/pip-x86-64-v3-gentoo2023.conf'
-download.find-links='/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic'
-global.disable-pip-version-check='true'
-install.constraint='/cvmfs/soft.computecanada.ca/config/python/constraints.txt'
-install.disable-pip-version-check='true'
-install.find-links='/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic'
-install.only-binary='numpy,scipy,mpi4py,pandas,h5py,Cython,grpcio'
-install.prefer-binary='true'
-wheel.disable-pip-version-check='true'
-wheel.find-links='/cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic'
-:env:.config-file='/cvmfs/soft.computecanada.ca/config/python/pip-x86-64-v3-gentoo2023.conf'
+========== H1.2 — pip config debug + provenance (looking for hidden index disablement) ==========
+env_var:
+  PIP_CONFIG_FILE='/cvmfs/soft.computecanada.ca/config/python/pip-x86-64-v3-gentoo2023.conf'
+env:
+  /cvmfs/soft.computecanada.ca/config/python/pip-x86-64-v3-gentoo2023.conf, exists: True
+    global.disable-pip-version-check: true
+    download.find-links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
+    wheel.find-links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
+    wheel.disable-pip-version-check: true
+    install.find-links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3 /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
+    install.constraint: /cvmfs/soft.computecanada.ca/config/python/constraints.txt
+    install.only-binary: numpy,scipy,mpi4py,pandas,h5py,Cython,grpcio
+    install.prefer-binary: true
+    install.disable-pip-version-check: true
+global:
+  /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/etc/xdg/pip/pip.conf, exists: False
+  /etc/xdg/pip/pip.conf, exists: False
+  /etc/pip.conf, exists: False
+site:
+  /home/ckp908/nn-for-aerodynamics/env/pip.conf, exists: False
 
-========== 4. all PIP_* env vars (any of these could secretly override pip flags) ==========
-PIP_CONFIG_FILE=/cvmfs/soft.computecanada.ca/config/python/pip-x86-64-v3-gentoo2023.conf
+========== H2.1 — pip module location + version metadata ==========
+pip __version__: 26.0.1
+pip __file__: /home/ckp908/nn-for-aerodynamics/env/lib/python3.11/site-packages/pip/__init__.py
+pip dir: /home/ckp908/nn-for-aerodynamics/env/lib/python3.11/site-packages/pip
 
-============================================================
-  PIP DRY-RUN PROBES
-  Each probe asks pip 'what would you do if I asked you to
-  install vtk under THESE flags?', and reports the answer.
-  Nothing is actually installed.
-============================================================
+--- pip's package METADATA (top of file) ---
+Name: pip
+Version: 26.0.1+computecanada
+Summary: The PyPA recommended tool for installing Python packages.
+Home-page: https://pip.pypa.io/
+Author: 
+Author-email: The pip developers <distutils-sig@python.org>
+License: 
+Location: /home/ckp908/nn-for-aerodynamics/env/lib/python3.11/site-packages
+Requires: 
+Required-by: 
 
-========== PROBE: A: defaults (with CC pip config + constraints active) ==========
-cmd: pip install --dry-run  "vtk>=9.3,<9.4"
---- output ---
+--- list of files in pip's installation, looking for CC-specific patches ---
+pip installed at: /home/ckp908/nn-for-aerodynamics/env/lib/python3.11/site-packages/pip
+__init__.py
+_internal
+__main__.py
+__pip-runner__.py
+__pycache__
+py.typed
+_vendor
+--- any reference to 'computecanada' or 'cvmfs' inside pip's source? ---
+/home/ckp908/nn-for-aerodynamics/env/lib/python3.11/site-packages/pip/_internal/index/collector.py
+/home/ckp908/nn-for-aerodynamics/env/lib/python3.11/site-packages/pip/_internal/network/auth.py
+/home/ckp908/nn-for-aerodynamics/env/lib/python3.11/site-packages/pip/_internal/cli/cmdoptions.py
+/home/ckp908/nn-for-aerodynamics/env/lib/python3.11/site-packages/pip/_internal/build_env.py
+
+========== H2.2 — what does 'pip install --dry-run -vv' actually do? (full network trace) ==========
+Running with -vv (very verbose) to see HTTP traffic. Truncated to 120 lines.
+Using pip 26.0.1 from /home/ckp908/nn-for-aerodynamics/env/lib/python3.11/site-packages/pip (python 3.11)
+Non-user install because user site-packages disabled
+Created temporary directory: /tmp/pip-build-tracker-vo1z9woa
+Initialized build tracking at /tmp/pip-build-tracker-vo1z9woa
+Created build tracker: /tmp/pip-build-tracker-vo1z9woa
+Entered build tracker: /tmp/pip-build-tracker-vo1z9woa
+Created temporary directory: /tmp/pip-install-ek7km3oz
+Created temporary directory: /tmp/pip-ephem-wheel-cache-ry66t6kn
 Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
-ERROR: Could not find a version that satisfies the requirement vtk<9.4,>=9.3 (from versions: none)
-ERROR: No matching distribution found for vtk<9.4,>=9.3
---- exit code: 1 ---
+1 location(s) to search for versions of vtk:
+* https://pypi.org/simple/vtk/
+Fetching project page and analyzing links: https://pypi.org/simple/vtk/
+Getting page https://pypi.org/simple/vtk/
+Found index url https://pypi.org/simple/
+Looking up "https://pypi.org/simple/vtk/" in the cache
+Request header has "max_age" as 0, cache bypassed
+Starting new HTTPS connection (1): pypi.org:443
+https://pypi.org:443 "GET /simple/vtk/ HTTP/1.1" 304 0
+Fetched page https://pypi.org/simple/vtk/ as application/vnd.pypi.simple.v1+json
+  Skipping link: none of the wheel's tags (cp27-cp27m-macosx_10_6_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/d6/e8/7659b7ba5f346139c7a827e6c43b04e4b9b62845ea8d55995cb347ca7541/vtk-8.1.0-cp27-cp27m-macosx_10_6_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp27-cp27m-manylinux1_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/cd/b2/2c0ef0dd3f58c4a7105dd5af41f5a40ea7f6c25a605e9a490e791be540f6/vtk-8.1.0-cp27-cp27m-manylinux1_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp27-cp27mu-manylinux1_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/13/7f/735fbc0dd78c91ad3693cfdfe5c91603899fc8e24909f935d46d2fde6559/vtk-8.1.0-cp27-cp27mu-manylinux1_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp34-cp34m-macosx_10_6_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/86/09/63368c63bd43caed32e0a785dd73ad1d5d60c1e0598239d0f4a3ec70158f/vtk-8.1.0-cp34-cp34m-macosx_10_6_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp34-cp34m-manylinux1_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/f5/d6/42160a32c25ca0fd6183dc9d3418ef0a412a145992d60996c064d4948e11/vtk-8.1.0-cp34-cp34m-manylinux1_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp35-cp35m-macosx_10_6_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/3d/53/0861e2cdc1616907a56c224cf7f3826b1e733dce705948611ea9060303e8/vtk-8.1.0-cp35-cp35m-macosx_10_6_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp35-cp35m-manylinux1_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/05/7a/47c2febcffa9e7e4de2c1ced607802084c803de08ff00edf08d456ec1482/vtk-8.1.0-cp35-cp35m-manylinux1_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp35-cp35m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/e8/04/4e389539bb8207a79a6443a20619c63c9361d2e6282e87480bc649ea1eea/vtk-8.1.0-cp35-cp35m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-macosx_10_6_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/52/5a/167ed01d6d15625b1e7772d7313802bec83e53a67aba059c25ddf84506c7/vtk-8.1.0-cp36-cp36m-macosx_10_6_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-manylinux1_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/2c/69/98277fc873f18c922ebfddfdcbf3e1cdbaa2f8ac2c6430da6ff56f5dbdf2/vtk-8.1.0-cp36-cp36m-manylinux1_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/03/b9/a8221409788a2204d3aed7d1404a726a8cc623cebda888c61b1fc0a2212e/vtk-8.1.0-cp36-cp36m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp27-cp27m-macosx_10_6_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/43/bc/23484943bce21850b21503f2bf96422fc3009c940682d203f6a99653b0dd/vtk-8.1.1-cp27-cp27m-macosx_10_6_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp27-cp27mu-manylinux1_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/73/f0/6bcadc47e338b0d484db2856cff7dfab26e30db5d9bdb35ed8acd88f36fe/vtk-8.1.1-cp27-cp27mu-manylinux1_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp34-cp34m-manylinux1_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/f9/76/5bbe9dff3c9d0e8896618e579f270dd30005325c2c476411698f424b2e71/vtk-8.1.1-cp34-cp34m-manylinux1_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp35-cp35m-macosx_10_6_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/e8/85/8dacca48bc3c7f85b6b46346421b0022697de148fdcc008e28763fe5c3a2/vtk-8.1.1-cp35-cp35m-macosx_10_6_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp35-cp35m-manylinux1_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/39/ee/b0930f3be81fc43bd6a81c0569fe153c2488c0e154d3151808f3d0b75fcd/vtk-8.1.1-cp35-cp35m-manylinux1_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp35-cp35m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/85/f2/e9f8eecdc77fb35432f945af32a7e3064339592b1b8ddef464c6d87eb6d3/vtk-8.1.1-cp35-cp35m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-macosx_10_6_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/80/23/39900aa96ceb3f40639849e3678de55b762e11ab4b6261ce75e5798b828d/vtk-8.1.1-cp36-cp36m-macosx_10_6_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-manylinux1_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/eb/a1/c3f73619c106a09589df0a68ac249fed7c4c414c3dfce3f1912c4aa5b122/vtk-8.1.1-cp36-cp36m-manylinux1_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/1f/78/960ef28651f7e79506478eeb9c968d44ad22004e0604aea59fc7e143089f/vtk-8.1.1-cp36-cp36m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp27-cp27m-macosx_10_6_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/d6/0e/0c91f7b6e7231e46536d163a7101aac38d71e52297570817307cece5985b/vtk-8.1.2-cp27-cp27m-macosx_10_6_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp27-cp27mu-manylinux1_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/bc/39/99d717feb6246e875188e60cc7200e60f862a457972e32c250a0cb8d2b3d/vtk-8.1.2-cp27-cp27mu-manylinux1_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp35-cp35m-macosx_10_6_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/8b/b6/0a4d3da43732cbf4fb5dfa180962439d1f7431e4e38446c22fc22365e040/vtk-8.1.2-cp35-cp35m-macosx_10_6_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp35-cp35m-manylinux1_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/e5/1c/3ea9e7f481a33ac28af75c4df0907cb8ce39ac33385566e9dcf4f95b0dcc/vtk-8.1.2-cp35-cp35m-manylinux1_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp35-cp35m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/08/35/9f608794853c88e18261d246c740634cff8712e1c75842a07b24208b5b4d/vtk-8.1.2-cp35-cp35m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-macosx_10_6_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/8d/3b/a92a64a5d1203aae2af17dccc686ff4eb3bb7114db79eaab1593c03fb678/vtk-8.1.2-cp36-cp36m-macosx_10_6_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-manylinux1_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/22/f5/30e11e1ad21701e1cd185b046979107930419a74a5602c6b899dc8523fe4/vtk-8.1.2-cp36-cp36m-manylinux1_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/68/b0/118886ca194445de5c90fc163ba36efb8e477295dfff7b053b678a5c9241/vtk-8.1.2-cp36-cp36m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-macosx_10_6_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/68/4b/6a4489a5a2fa01e74f0e069cb5e49048f70a50e95efb976763aa4822c7c6/vtk-8.1.2-cp37-cp37m-macosx_10_6_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-manylinux1_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/51/d3/48eb121c4375f7cb15f309a597cd1355198900cb9945dfaf593fca06173a/vtk-8.1.2-cp37-cp37m-manylinux1_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/6b/55/e4f0cdf6634def017a98374a6930ffdd65d84b8ddf1c885a08728de5b408/vtk-8.1.2-cp37-cp37m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp35-cp35m-macosx_10_9_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/da/4e/d7c3e9d3c5e333d0cc9c0fc08185b2e2f68d9a27ed8eb1f21b6b7d86eef8/vtk-9.0.0-cp35-cp35m-macosx_10_9_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp35-cp35m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/d2/10/a4c96b754be8969172ce940e31a36c7bdc5c2a4c9608e5da33eeeb2dd189/vtk-9.0.0-cp35-cp35m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-macosx_10_9_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/0b/f4/fa89435d0eaba9a9852a94409c5edb1692c1665dc130f1aacc5c4d3a5d68/vtk-9.0.0-cp36-cp36m-macosx_10_9_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/41/f2/9725dbe9a11a4fce345fbad8532ca350ba5c95debd0542456b8dd5a697d0/vtk-9.0.0-cp36-cp36m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-macosx_10_9_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/b8/0a/c19d62ae0460034bb80b33747efef449064c036efcd7c9e29cc92f71f858/vtk-9.0.0-cp37-cp37m-macosx_10_9_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/92/0b/bd31d5546d8ec5d52b3f15432525a13e5b11adb0f429a51838e479331cf2/vtk-9.0.0-cp37-cp37m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-macosx_10_9_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/b8/2b/d931126c10b9db9998e58bf29a125c45f8f20514bdc20ac1c004dae820b2/vtk-9.0.0-cp38-cp38-macosx_10_9_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/a0/2f/67cb510d6dd2c53841f78523f91c5c2d15a0369673d9b7e0c4dc3447743a/vtk-9.0.0-cp38-cp38-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp35-cp35m-macosx_10_9_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/64/6b/035c45d1facf0c7e7fe866bd5c1db2c17391362b558e7f7d62631ec634f6/vtk-9.0.1-cp35-cp35m-macosx_10_9_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp35-cp35m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/48/64/66a174c8e62f7d54598442fa8f5e4d9a9c2279e4063ff5a20507da4a8a90/vtk-9.0.1-cp35-cp35m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-macosx_10_9_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/ba/2d/a06c0e219ba953b757849650a67e1f3df8f0f17c0aba6e6b6d7b822298fe/vtk-9.0.1-cp36-cp36m-macosx_10_9_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-manylinux2010_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/f9/3e/fa760bdbcc20d9f2fedebace22ffc575335bb5f281e98ca9831475ff3f09/vtk-9.0.1-cp36-cp36m-manylinux2010_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/1f/0a/768211946402b30a28c5481c73e4282ad8e815a1ccf50bb34c87f92f607c/vtk-9.0.1-cp36-cp36m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-macosx_10_9_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/a2/ce/75746495482f4d9d68a2756ca61b7a3e9818419bd08e78a61439f6cb7e4d/vtk-9.0.1-cp37-cp37m-macosx_10_9_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-manylinux2010_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/b5/f5/1971e21b7da2875fa07754e49c302cdb140de4c8585d56df8027d08ce299/vtk-9.0.1-cp37-cp37m-manylinux2010_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/f3/d6/e4d20607580ae168e6539fe8ef601ca5c2b247f27561d53b5f1907f8ea90/vtk-9.0.1-cp37-cp37m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-macosx_10_9_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/16/a9/8f008ac22f9efb2cb1b1d45f9e00e994f707e319a10a1f53904dcfc50244/vtk-9.0.1-cp38-cp38-macosx_10_9_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-manylinux2010_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/09/72/25d41e6bede152b6a3aea1c9a8fe9fbf4f69f64f2f5d788272fe19d1a1e6/vtk-9.0.1-cp38-cp38-manylinux2010_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/72/1d/c19447a94320e8b3a9312262fba1a79e04d1c43ab761870bad2775b43586/vtk-9.0.1-cp38-cp38-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/92/4b/43814d2075f818ba01fd10f58562e7fce46656bacfe8b261fc0e84c529c2/vtk-9.0.2-cp36-cp36m-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-manylinux2014_x86_64, cp36-cp36m-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/6a/56/2c007500c86fd240d4ee54ca84de38f9ce25a39268bd97982b237bf2b7f4/vtk-9.0.2-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/d2/f2/bef96b9336c40973001766b50a042603150601406f453e56ea1a74bb3a55/vtk-9.0.2-cp36-cp36m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/6d/1d/35914e2c4749535925d9af5adf5f901d49afe3d02c013b1c4d72d68a768e/vtk-9.0.2-cp37-cp37m-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-manylinux2014_x86_64, cp37-cp37m-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/37/19/89a730508ffc3d41538f833de6ffa48d2f2246c243de595e30c2405db7a8/vtk-9.0.2-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/fb/54/ab6ff16db54bcdb8cb64bc007ea33122db999fc6ddf22a96085d4bfbf6e0/vtk-9.0.2-cp37-cp37m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/84/a5/b375adad4f081f2b5bdfa6f99e2419bc28afcda9e2fbbf39b433c989c4ff/vtk-9.0.2-cp38-cp38-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-manylinux2014_x86_64, cp38-cp38-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/b6/00/1287c762dbe56e3d27c8c8b01e982e72414b21a912083449e4a4667ff5ea/vtk-9.0.2-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/f3/62/7bf8ce3392dff7062dcfe783fa8b531083f85c5ab288573c82f36124b1c6/vtk-9.0.2-cp38-cp38-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp39-cp39-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/48/55/ea284a8d76744945693cd107201b8fc2d788fdfa7536da545eaa6684ce0a/vtk-9.0.2-cp39-cp39-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp39-cp39-macosx_11_0_arm64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/64/05/cfc6a63975d31f862d43b0d5e4add55db06ff3d572de01d42dabcd48f43b/vtk-9.0.2-cp39-cp39-macosx_11_0_arm64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp39-cp39-manylinux2014_x86_64, cp39-cp39-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/44/d7/d7b9cb857c04f7a972a477e605981d22f384cee60a0894ff36452c553c05/vtk-9.0.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp39-cp39-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/b9/fc/632708fcd333b76f84d2d97c1fab1a506c2a1ae61c2a87203f09edf53e01/vtk-9.0.2-cp39-cp39-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/3b/98/1592446ee1773c909a5e99e8abcb5e0c24cb47c6b45e7d8ae9bfb5df8b1c/vtk-9.0.3-cp36-cp36m-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-manylinux2014_x86_64, cp36-cp36m-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/43/ce/0e9eb32df18a81ee37a3ba973bb1b492730736adcb592e89a12303259b96/vtk-9.0.3-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/9d/5d/2235b5d46cdb4b84fb4203f0bdb4a2fe0d08f321727dd85abef07feeda42/vtk-9.0.3-cp36-cp36m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/30/1f/f958cd7761b225f93fe072948ab6f680a7be449fed784008e85d4f6fcf69/vtk-9.0.3-cp37-cp37m-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-manylinux2014_x86_64, cp37-cp37m-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/f0/2c/cd665a79bbfab09e949cca4b920421dc56a4afc604d5d6be27ecee95176e/vtk-9.0.3-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/4a/f5/cebb9a14b6691acb2432d94ba3f6ce258ef863726cc3d5d3995d134dd7ab/vtk-9.0.3-cp37-cp37m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/8f/43/1e860808c388a0f8a598d8faf18149be0902d6749f27b9456ea18af8f29f/vtk-9.0.3-cp38-cp38-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-manylinux2014_x86_64, cp38-cp38-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/70/03/11f4a5fdf78d02cd6a396a14fb6156387c1ac482cbfcbdb8f6ef92d724a0/vtk-9.0.3-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/5b/63/b125762385c7b69d2f41e2d692ed8a1c1a521c8f695d70733f220d27ddf6/vtk-9.0.3-cp38-cp38-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp39-cp39-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/6b/9b/e79647c83f05060130f8dee4b32960ed25e5318db5eef6cbca741f5c0121/vtk-9.0.3-cp39-cp39-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp39-cp39-macosx_11_0_arm64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/01/ce/9ed27847f12075940924a6908e3ee83870d1b7a8d6a7ea37501f0effbd5e/vtk-9.0.3-cp39-cp39-macosx_11_0_arm64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp39-cp39-manylinux2014_x86_64, cp39-cp39-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/be/7c/a0d5323018eb5f2a7f75fdb7908d96a48f1c3a956d1bc6b13da8efd000b8/vtk-9.0.3-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp39-cp39-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/69/27/bce392e75c9b04cce9bf9d53f5562973236b424f2f44aed76ca52512c553/vtk-9.0.3-cp39-cp39-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/45/cd/066ec2f8765336132d01f9975f4b79d67eaf872ceab02f23fccf09a864a3/vtk-9.1.0-cp36-cp36m-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-manylinux2014_x86_64, cp36-cp36m-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/b2/c9/baf0f2b4dd6ba5f322d9b4694bf5be233cba3ff4f88b758c9f0d48499ba1/vtk-9.1.0-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/d4/d9/191906b1c411e39fc5b687e481284b5e893f0f1f48c04b40193300cc9f0c/vtk-9.1.0-cp36-cp36m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/70/79/cef3382632dc5cf087e9ed1af6857f596f8da7b8b8b243df489aea0aa640/vtk-9.1.0-cp37-cp37m-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-manylinux2014_x86_64, cp37-cp37m-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/be/5f/4fbb1f2a370180af1bc292540c505ab237d300dc0809a929e25ccc56b967/vtk-9.1.0-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/f1/d8/d52b30a1fe2194ba838efa5419319a7645d19ec1b3668d72f476f23a8a4a/vtk-9.1.0-cp37-cp37m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/0f/44/41d12b81bf016ce479ab4ba8c2b2bd0f5475cf3fc9d0cbaeae2be3bd6583/vtk-9.1.0-cp38-cp38-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-manylinux2014_x86_64, cp38-cp38-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/ab/b8/16094289a24cceb5b5f3f9200dfbe9ed1cc0954d37202baced8590052e10/vtk-9.1.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/50/92/0fd0f319873373d10d2ffbb4701bf96661cf33f16e476f6e7debe5c2a105/vtk-9.1.0-cp38-cp38-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp39-cp39-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/f7/20/6711ecd8444d6bbcf39df5e7cf21e2f9f8a575bbff0cc46faaa1eefd9153/vtk-9.1.0-cp39-cp39-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp39-cp39-macosx_11_0_arm64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/d8/b1/5e028030f168c7b1dc10e9625e4cf017622193301f7ff887f3c2d20267d8/vtk-9.1.0-cp39-cp39-macosx_11_0_arm64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp39-cp39-manylinux2014_x86_64, cp39-cp39-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/d1/c1/04964cbc6d0c995512553d455b9011960b022aede0224bc895f34098f116/vtk-9.1.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp39-cp39-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/16/02/186e58b59e948b3d70447b0807315b63ebf20984f72805219a51c7dfcd3e/vtk-9.1.0-cp39-cp39-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp310-cp310-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/07/e7/105611e07f70ff9e0710661585934de83903cfbe82c19499001d94934187/vtk-9.2.2-cp310-cp310-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp310-cp310-macosx_11_0_arm64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/92/33/0b0f510e6546aa557eb44d40cab690cd669a8a5a5e1d17240287e57940ed/vtk-9.2.2-cp310-cp310-macosx_11_0_arm64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp310-cp310-manylinux2014_x86_64, cp310-cp310-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/f7/4a/e518890fb93d71fb6b4dd2857422d8d6986d736d69371f25593790586dd5/vtk-9.2.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp310-cp310-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/53/e2/2c15b8cf24e9eb832fec4832ae3bfa40ecb3177ca5454e96a980ed328e14/vtk-9.2.2-cp310-cp310-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/8a/65/4ea757d0c9572ab124553981196ef5051235998343890bd9bd12fc3dec38/vtk-9.2.2-cp36-cp36m-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-manylinux2014_x86_64, cp36-cp36m-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/18/4d/7dd73a414eb4f103c1299dc28878165a7cd46bbf79fe896b1810c8ee097a/vtk-9.2.2-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp36-cp36m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/e4/b8/f29da52e456ab858520019d7f2d7a8140dde77baaadd5caa563b659759ea/vtk-9.2.2-cp36-cp36m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/ed/6d/08a09c75376569f78dc76a2e02df936f8e478d38d521aaa72ed6e7f07ef5/vtk-9.2.2-cp37-cp37m-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-manylinux2014_x86_64, cp37-cp37m-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/27/0f/3516e2fe67b053c2e659dee9ee98244cedb4a1cdaa60ec886b1a2ec6fdb2/vtk-9.2.2-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp37-cp37m-win_amd64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/11/d6/0db66113aff10b54e4e968701d018164b06cc731e558c4ed6f687d98d9e5/vtk-9.2.2-cp37-cp37m-win_amd64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-macosx_10_10_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/46/04/64aa2616a37075b8857dbc45796fc3ab81abc69c644f774049480c805ce0/vtk-9.2.2-cp38-cp38-macosx_10_10_x86_64.whl (from https://pypi.org/simple/vtk/)
+  Skipping link: none of the wheel's tags (cp38-cp38-manylinux2014_x86_64, cp38-cp38-manylinux_2_17_x86_64) are compatible (run pip debug --verbose to show compatible tags): https://files.pythonhosted.org/packages/9a/fc/1b947463168e4d04e60923bd883907e7b7b23a877cd90ee127061ebb9496/vtk-9.2.2-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (from https://pypi.org/simple/vtk/)
+(exit code: 120)
 
-========== PROBE: B: --isolated (ignore CC config files + env vars) ==========
-cmd: pip install --dry-run --isolated "vtk>=9.3,<9.4"
---- output ---
-Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
-ERROR: Could not find a version that satisfies the requirement vtk<9.4,>=9.3 (from versions: none)
-ERROR: No matching distribution found for vtk<9.4,>=9.3
---- exit code: 1 ---
+========== H2.3 — try with PIP_CONFIG_FILE explicitly unset (env-level reset) ==========
+cmd: env -u PIP_CONFIG_FILE pip install --dry-run --no-cache-dir --index-url https://pypi.org/simple --no-build-isolation "vtk==9.3.1"
+ERROR: Could not find a version that satisfies the requirement vtk==9.3.1 (from versions: none)
 
-========== PROBE: C: --isolated + explicit PyPI index ==========
-cmd: pip install --dry-run --isolated --index-url https://pypi.org/simple "vtk>=9.3,<9.4"
---- output ---
-Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
-ERROR: Could not find a version that satisfies the requirement vtk<9.4,>=9.3 (from versions: none)
-ERROR: No matching distribution found for vtk<9.4,>=9.3
---- exit code: 1 ---
+[notice] A new release of pip is available: 26.0.1+computecanada -> 26.1
+[notice] To update, run: pip install --upgrade pip
+ERROR: No matching distribution found for vtk==9.3.1
+(exit code: 1)
 
-========== PROBE: D: --isolated + PyPI + --no-deps (skip transitive resolution) ==========
-cmd: pip install --dry-run --isolated --no-deps --index-url https://pypi.org/simple "vtk>=9.3,<9.4"
---- output ---
-Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
-ERROR: Could not find a version that satisfies the requirement vtk<9.4,>=9.3 (from versions: none)
-ERROR: No matching distribution found for vtk<9.4,>=9.3
---- exit code: 1 ---
+========== H2.4 — try with PIP_CONFIG_FILE=/dev/null (force empty config) ==========
+cmd: PIP_CONFIG_FILE=/dev/null pip install --dry-run --no-cache-dir --index-url https://pypi.org/simple "vtk==9.3.1"
+ERROR: Could not find a version that satisfies the requirement vtk==9.3.1 (from versions: none)
 
-========== PROBE: E: --no-build-isolation + PyPI (explore alternate cause) ==========
-cmd: pip install --dry-run --no-build-isolation --index-url https://pypi.org/simple "vtk>=9.3,<9.4"
---- output ---
-Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
-ERROR: Could not find a version that satisfies the requirement vtk<9.4,>=9.3 (from versions: none)
-ERROR: No matching distribution found for vtk<9.4,>=9.3
---- exit code: 1 ---
+[notice] A new release of pip is available: 26.0.1+computecanada -> 26.1
+[notice] To update, run: pip install --upgrade pip
+ERROR: No matching distribution found for vtk==9.3.1
+(exit code: 1)
 
-========== PROBE F: 'pip download' (downloads to /tmp; doesn't install) ==========
-cmd: pip download --no-deps --isolated --index-url https://pypi.org/simple --dest /tmp/vtk_probe "vtk>=9.3,<9.4"
---- output ---
-Looking in links: /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/x86-64-v3, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/gentoo2023/generic, /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic
-ERROR: Could not find a version that satisfies the requirement vtk<9.4,>=9.3 (from versions: none)
-ERROR: No matching distribution found for vtk<9.4,>=9.3
---- exit code: 1 ---
---- contents of /tmp/vtk_probe after probe ---
-total 4
-drwxr-x---  2 ckp908 ckp908    6 Apr 28 11:30 .
-drwxrwxrwt 10 root   root   4096 Apr 28 11:52 ..
+========== H2.5 — direct PyPI HTTP fetch (does pip's transport layer work at all?) ==========
+--- curl pypi.org/simple/vtk/ ---
+http_code=200 size=223987 time=0.128091
+first cp311 wheel referenced in PyPI's vtk index page:
+vtk-9.2.4-cp311-cp311-macosx_10_10_x86_64.whl
+vtk-9.2.4-cp311-cp311-macosx_10_10_x86_64.whl
+vtk-9.2.4-cp311-cp311-macosx_11_0_arm64.whl
+(no cp311 hits via curl — but they exist on PyPI)
 
-========== 5. SYSTEM VTK MODULE — does 'module load vtk/9.3.0' provide a Python-importable vtk? ==========
---- modules currently loaded ---
+--- pip's resolver against PyPI directly via Python (bypass pip's CLI defaults) ---
+GOT 289038 bytes from https://pypi.org/simple/vtk/
+cp311 vtk 9.3.x mentions in response:
+   {"alternate-locations":[],"files":[{"core-metadata":{"sha256":"ada75a3dbe9651b70ee40a1acde7844ee84df896cd954a147d3d2ced0b6c9ef5"},"data-dist-info-metadata":{"sha256":"ada75a3dbe9651b70ee40a1acde7844ee
+
+========== H3.1 — module spider vtk/9.3.0 (lists prerequisites) ==========
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  vtk: vtk/9.3.0
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    Description:
+      The Visualization Toolkit (VTK) is an open-source, freely available software system for 3D computer graphics, image processing and visualization. VTK consists of a C++ class library and several interpreted interface layers including Tcl/Tk, Java, and Python.
+      VTK supports a wide variety of visualization algorithms including: scalar, vector, tensor, texture, and volumetric methods; and advanced modeling techniques such as: implicit modeling, polygon reduction, mesh smoothing, cutting, contouring, and Delaunay
+      triangulation.
+
+    Properties:
+      Visualisation software / Logiciels de visualisation
+
+    You will need to load all module(s) on any one of the lines below before the "vtk/9.3.0" module is available to load.
+
+      StdEnv/2023  gcc/12.3
+ 
+    Help:
+      
+      Description
+      ===========
+      The Visualization Toolkit (VTK) is an open-source, freely available software system for
+       3D computer graphics, image processing and visualization. VTK consists of a C++ class library and several
+       interpreted interface layers including Tcl/Tk, Java, and Python. VTK supports a wide variety of visualization
+       algorithms including: scalar, vector, tensor, texture, and volumetric methods; and advanced modeling techniques
+       such as: implicit modeling, polygon reduction, mesh smoothing, cutting, contouring, and Delaunay triangulation.
+      
+      
+      More information
+      ================
+       - Homepage: http://www.vtk.org
+      
+      
+      Compatible modules
+      ==================
+      This module is compatible with the following modules, one of each line is required:
+      * python/3.11, python/3.10
+      
+
+
+ 
+
+
+========== H3.2 — try the documented load sequence (with python/3.11 first) ==========
+--- before: PYTHONPATH and which python ---
+PYTHONPATH=/cvmfs/soft.computecanada.ca/custom/python/site-packages
+python   = /home/ckp908/nn-for-aerodynamics/env/bin/python
+
+--- module load python/3.11 ---
+
+--- module load vtk/9.3.0 (after python/3.11) ---
+
+--- module list (post-load) ---
+
+Currently Loaded Modules:
+  1) CCconfig   2) gentoo/2023 (S)   3) gcccore/.12.3 (H)   4) gcc/12.3 (t)   5) hwloc/2.9.1   6) ucx/1.14.1   7) libfabric/1.18.0   8) pmix/4.2.4   9) ucc/1.2.0  10) openmpi/4.1.5 (m)  11) flexiblas/3.3.1  12) imkl/2023.2.0 (math)  13) StdEnv/2023 (S)
+
+  Where:
    H:     Hidden Module
    S:     Module is Sticky, requires --force to unload or purge
    m:     MPI implementations / Implémentations MPI
@@ -132,94 +307,31 @@ drwxrwxrwt 10 root   root   4096 Apr 28 11:52 ..
  
 
 
---- attempting: module load vtk/9.3.0 ---
-
---- modules after load ---
-   H:     Hidden Module
-   S:     Module is Sticky, requires --force to unload or purge
-   m:     MPI implementations / Implémentations MPI
-   math:  Mathematical libraries / Bibliothèques mathématiques
-   t:     Tools for development / Outils de développement
-
- 
-
-
---- VTK-related env vars after load ---
-(none)
-
---- PYTHONPATH after load ---
+--- PYTHONPATH after both loads ---
 /cvmfs/soft.computecanada.ca/custom/python/site-packages
 
---- python sys.path after load (relevant entries) ---
-  
-  /cvmfs/soft.computecanada.ca/custom/python/site-packages
-  /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/python311.zip
-  /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/python3.11
-  /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/python3.11/lib-dynload
-  /home/ckp908/nn-for-aerodynamics/env/lib/python3.11/site-packages
+--- VTK / EBROOT / EBVERSION env vars ---
+EBROOTIMKL=/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Core/imkl/2023.2.0
+EBVERSIONOPENMPI=4.1.5
+EBROOTPMIX=/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/pmix/4.2.4
+EBROOTOPENMPI=/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcc12/openmpi/4.1.5
+EBVERSIONGENTOO=2023
+EBVERSIONUCX=1.14.1
+EBROOTGENTOO=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr
+EBVERSIONUCC=1.2.0
+EBROOTHWLOC=/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/hwloc/2.9.1
+EBVERSIONHWLOC=2.9.1
 
---- can Python import vtk now? ---
+--- can the venv python now import vtk? ---
 Traceback (most recent call last):
   File "<string>", line 1, in <module>
 ModuleNotFoundError: No module named 'vtk'
 
---- where do vtk python files actually live (if anywhere)? ---
-/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcc12/vtk/9.3.0/lib/python3.11/site-packages/vtk.py
-/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcc12/vtk/9.3.0/lib/python3.10/site-packages/vtk.py
-/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v4/Compiler/gcc12/vtk/9.3.0/lib/python3.11/site-packages/vtk.py
-/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v4/Compiler/gcc12/vtk/9.3.0/lib/python3.10/site-packages/vtk.py
-/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcc12/vtk/9.3.0/lib/python3.11/site-packages/vtkmodules
-/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcc12/vtk/9.3.0/lib/python3.10/site-packages/vtkmodules
-/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/vtk-mpi/9.3.1/lib/python3.10/site-packages/vtkmodules
-/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/vtk-mpi/9.3.1/lib/python3.11/site-packages/vtkmodules
-/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/intel2023/openmpi4/vtk-mpi/9.3.1/lib/python3.11/site-packages/vtkmodules
-
---- attempting: module load vtk/9.4.2 (default) ---
---- python import vtk after 9.4.2 load ---
+========== H3.3 — alternative: try the load sequence WITHOUT venv (system python) ==========
+(this checks whether vtk's python bindings work at all when the right python is loaded)
+after deactivate: which python = /home/ckp908/nn-for-aerodynamics/env/bin/python (Python 3.11.4)
 Traceback (most recent call last):
   File "<string>", line 1, in <module>
 ModuleNotFoundError: No module named 'vtk'
 
-========== 6. PYVISTA wheelhouse tag inspection (what python versions does the wheel claim?) ==========
-wheel: pyvista-0.25.3+computecanada-py3-none-any.whl
-Requires-Python: >=3.5.*
-Requires-Dist: vtk
----
-wheel: pyvista-0.34.1+computecanada-py3-none-any.whl
-Requires-Python: >=3.7.*
-Requires-Dist: vtk
----
-wheel: pyvista-0.41.1+computecanada-py3-none-any.whl
-Requires-Python: >=3.8
-Requires-Dist: vtk
-Requires-Dist: ipyvtklink ; extra == 'jupyter'
-Requires-Dist: trame-vtk (>=2.5.8) ; extra == 'jupyter'
-Requires-Dist: trame-vtk (>=2.5.8) ; extra == 'trame'
----
-wheel: pyvista-0.44.0+computecanada-py3-none-any.whl
-Requires-Python: >=3.8
-Requires-Dist: vtk
-Requires-Dist: trame-vtk >=2.5.8 ; extra == 'jupyter'
----
-wheel: pyvista-0.44.1+computecanada-py3-none-any.whl
-Requires-Python: >=3.8
-Requires-Dist: vtk
-Requires-Dist: trame-vtk >=2.5.8 ; extra == 'jupyter'
----
-wheel: pyvista-0.44.2+computecanada-py3-none-any.whl
-Requires-Python: >=3.8
-Requires-Dist: vtk<9.4.0
-Requires-Dist: trame-vtk>=2.5.8; extra == "jupyter"
----
-
-========== SUMMARY — what to look at when reading this output ==========
-Q1: Does constraints.txt pin vtk or pyvista?    => see section 1
-Q2: Does the pip config truly disable PyPI?     => see section 2 (look for index-url / no-index)
-Q3: Does --isolated bypass the config?          => compare PROBE A vs B
-Q4: Does PROBE D (the script's intended fix)    => see PROBE D exit code
-    actually succeed?
-Q5: Is 'module load vtk' a viable alternative?  => see section 5
-Q6: Does wheelhouse pyvista require a vtk that  => see section 6 (Requires-Dist:vtk)
-    cp311 cannot satisfy?
-
-Send the full log of this script back. Do not interpret in-place.
+========== DONE — paste full log back ==========
