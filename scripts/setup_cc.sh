@@ -235,7 +235,12 @@ if [[ "$DOWNLOAD_DATA" -eq 1 ]]; then
     echo "[setup_cc] AirfRANS already at $DATA_DIR (skipping download)"
   else
     echo "[setup_cc] downloading AirfRANS (~10 GB compressed) to $DATA_DIR"
-    PYTHONPATH="$ROOT/src" python -c "from geompnn.data import download_if_needed; download_if_needed()"
+    # PREPEND to PYTHONPATH — don't overwrite. CC's Python relies on a
+    # sitecustomize.py at /cvmfs/.../easybuild/python/site-packages/ that
+    # walks $EBPYTHONPREFIXES to add the system vtk's path to sys.path.
+    # Replacing PYTHONPATH strips that directory, sitecustomize never runs,
+    # and `import vtkmodules` fails.
+    PYTHONPATH="$ROOT/src:${PYTHONPATH:-}" python -c "from geompnn.data import download_if_needed; download_if_needed()"
   fi
 else
   echo "[setup_cc] --no-data: skipping AirfRANS download"

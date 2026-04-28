@@ -82,7 +82,7 @@ if [[ "$DOWNLOAD_DATA" -eq 1 ]]; then
     echo "[setup] AirfRANS already present at $DATA_DIR (skipping download)"
   else
     echo "[setup] downloading AirfRANS to $DATA_DIR — this is ~10 GB and takes a while"
-    PYTHONPATH="$ROOT/src" python -c "from geompnn.data import download_if_needed; download_if_needed()"
+    PYTHONPATH="$ROOT/src:${PYTHONPATH:-}" python -c "from geompnn.data import download_if_needed; download_if_needed()"
   fi
 else
   echo "[setup] --no-data: skipping AirfRANS download"
