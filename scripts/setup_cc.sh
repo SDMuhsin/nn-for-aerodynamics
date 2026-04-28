@@ -103,15 +103,39 @@ if [[ "$REPAIR_ONLY" -eq 0 ]]; then
   # 4b) airfrans loads each simulation's .vtu/.vtp via pyvista (which wraps VTK).
   #     We cannot pip-install vtk: PyPI ships only manylinux-tagged cp311 vtk
   #     wheels and CC's pip excludes manylinux from its compatible-tag list.
-  #     Instead we use the system module (loaded at script start), which sets
-  #     EBPYTHONPREFIXES so the venv's python finds vtk transparently.
-  #     pyvista is pure-python from the wheelhouse; we install it with --no-deps
-  #     because pip can't satisfy its `vtk<9.4.0` requirement (vtk isn't
-  #     pip-installed) — but at runtime `import vtk` succeeds via the module.
+  #     Instead we take vtk from the system module (loaded at script start),
+  #     which sets EBPYTHONPREFIXES so the venv's python finds vtk transparently.
+  #
+  #     Pyvista has runtime deps beyond vtk (scooby, pooch, pillow, ...). To
+  #     skip vtk while still installing the rest, we install pyvista in two
+  #     steps: (i) install everything pyvista needs EXCEPT vtk, (ii) install
+  #     pyvista itself with --no-deps. The dep list comes from the actual
+  #     wheel's METADATA so it stays correct if pyvista's deps change.
+  PYVISTA_WHL=$(ls /cvmfs/soft.computecanada.ca/custom/python/wheelhouse/generic/pyvista-*.whl 2>/dev/null | sort -V | tail -1)
+  if [[ -z "$PYVISTA_WHL" ]]; then
+    echo "[setup_cc] FATAL: no pyvista wheel in CC wheelhouse"
+    exit 6
+  fi
+  echo "[setup_cc] using pyvista wheel: $(basename "$PYVISTA_WHL")"
+
+  PYVISTA_DEPS=$(unzip -p "$PYVISTA_WHL" '*/METADATA' | awk '
+    /^Requires-Dist:/ {
+      sub(/^Requires-Dist: */, "")
+      if ($0 ~ /^vtk([^A-Za-z0-9_]|$)/) next   # vtk comes from system module
+      if ($0 ~ /extra ==/)               next  # optional extras (jupyter, ...)
+      print
+    }')
+  echo "[setup_cc] pyvista runtime deps (excluding vtk + extras):"
+  echo "$PYVISTA_DEPS" | sed 's/^/  /'
+  if [[ -n "$PYVISTA_DEPS" ]]; then
+    # xargs splits on newlines so each spec like 'scooby>=0.5.1' stays one arg.
+    printf '%s\n' "$PYVISTA_DEPS" | xargs -r -d '\n' pip install --no-index
+  fi
+
   echo "[setup_cc] verifying vtk is importable from the system module"
   python -c "import vtk; v = vtk.vtkVersion.GetVTKVersion(); print(f'[setup_cc]   vtk {v}'); assert v.startswith('9.3'), f'expected 9.3.x, got {v}'"
-  echo "[setup_cc] installing pyvista from wheelhouse (--no-deps; vtk is module-provided)"
-  pip install --no-index --no-deps pyvista
+  echo "[setup_cc] installing pyvista from the wheel itself (--no-deps; vtk module-provided)"
+  pip install --no-index --no-deps "$PYVISTA_WHL"
 
   # 5) lips-benchmark + airfrans + dill from PyPI
   #    --index-url overrides CC's default --no-index policy. CC's compute nodes
