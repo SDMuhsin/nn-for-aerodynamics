@@ -30,8 +30,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT"
 
-# Defaults — the full reproduction
-ABLATIONS=(mlp gnn s2v s2v_gnn trail polar sine sph inlet geompnn)
+# Defaults — currently scoped to ONLY the paper's headline SOTA model (geompnn,
+# target Global Score ~53–55, must beat Casenave 47.04). The other 9 ablations
+# below form the full reproduction sweep; uncomment when ready to run them.
+ABLATIONS=(geompnn)
+# ABLATIONS=(mlp gnn s2v s2v_gnn trail polar sine sph inlet geompnn)
 SEEDS=(0 1 2 3 4 5 6 7)
 ETA_INTERVAL_SEC=300
 ETA_SEED_HOURS=9.0
