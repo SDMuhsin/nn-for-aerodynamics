@@ -85,10 +85,12 @@ if [[ "$REPAIR_ONLY" -eq 0 ]]; then
   # 4b) airfrans loads each simulation's .vtu/.vtp via pyvista (which wraps VTK).
   #     CC ships vtk wheels only for Python <= 3.10 (no cp311 wheel exists in
   #     their wheelhouse). pyvista 0.44.2 requires vtk<9.4.0. Strategy:
-  #       - vtk: from PyPI (cp311 wheels available there), pinned to 9.3.x
-  #       - pyvista: from CC wheelhouse (no compiled bits, just python)
+  #       - vtk: from PyPI (cp311 wheels available there), pinned to 9.3.x.
+  #         CC's PIP_CONFIG_FILE silently overrides --index-url unless we pass
+  #         --isolated AND --no-deps.
+  #       - pyvista: from CC wheelhouse (no compiled bits, just python).
   echo "[setup_cc] installing vtk 9.3.x from PyPI (CC has no cp311 vtk wheel)"
-  pip install --index-url https://pypi.org/simple "vtk>=9.3,<9.4"
+  pip install --isolated --no-deps --index-url https://pypi.org/simple "vtk>=9.3,<9.4"
   pip install --no-index pyvista
 
   # 5) lips-benchmark + airfrans + dill from PyPI
